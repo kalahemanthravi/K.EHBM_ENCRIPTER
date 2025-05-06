@@ -497,7 +497,7 @@
         // Encryption/Decryption Functions
         function showCryptoTool() {
             cryptoTool.classList.remove('hidden');
-            speak("Secure Crypto Tool activated. Use the tabs to encrypt or decrypt your messages copy enter you message and enter set your own pin and click enter and copy them and send it.");
+            speak("Secure Crypto Tool activated. Use the tabs to encrypt or decrypt your messages.");
         }
 
         // Tab Switching
@@ -525,14 +525,8 @@
             }
 
             try {
-                const iv = CryptoJS.lib.WordArray.random(16);
-                const encrypted = CryptoJS.AES.encrypt(text, CryptoJS.enc.Utf8.parse(key), {
-                    iv: iv,
-                    mode: CryptoJS.mode.CBC,
-                    padding: CryptoJS.pad.Pkcs7
-                });
-                const result = `${iv.toString(CryptoJS.enc.Hex)}:${encrypted.ciphertext.toString(CryptoJS.enc.Hex)}`;
-                encryptOutput.value = result;
+                const encrypted = CryptoJS.AES.encrypt(text, key).toString();
+                encryptOutput.value = encrypted;
                 speak("Text encrypted successfully.");
             } catch (error) {
                 encryptError.textContent = "Encryption failed. Please try again.";
@@ -555,24 +549,11 @@
             }
 
             try {
-                const [ivHex, cipherText] = text.split(':');
-                if (!ivHex || !cipherText) {
-                    throw new Error("Invalid encrypted text format.");
-                }
-                const decrypted = CryptoJS.AES.decrypt(
-                    { ciphertext: CryptoJS.enc.Hex.parse(cipherText) },
-                    CryptoJS.enc.Utf8.parse(key),
-                    {
-                        iv: CryptoJS.enc.Hex.parse(ivHex),
-                        mode: CryptoJS.mode.CBC,
-                        padding: CryptoJS.pad.Pkcs7
-                    }
-                );
-                const result = decrypted.toString(CryptoJS.enc.Utf8);
-                if (!result) {
+                const decrypted = CryptoJS.AES.decrypt(text, key).toString(CryptoJS.enc.Utf8);
+                if (!decrypted) {
                     throw new Error("Decryption failed.");
                 }
-                decryptOutput.value = result;
+                decryptOutput.value = decrypted;
                 speak("Text decrypted successfully.");
             } catch (error) {
                 decryptError.textContent = "Decryption failed. Check your text or key.";
